@@ -42,6 +42,7 @@ export default function ResourceInfoBox({}: ResourceInfoBoxType) {
                                     {authInfo.password ||
                                     authInfo.pincode ||
                                     authInfo.sso ||
+                                    authInfo.mtls ||
                                     authInfo.whitelist ||
                                     authInfo.headerAuth ? (
                                         <div className="flex items-start space-x-2 text-green-500">

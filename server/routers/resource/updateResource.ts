@@ -39,6 +39,7 @@ const updateHttpResourceBodySchema = z
         name: z.string().min(1).max(255).optional(),
         subdomain: subdomainSchema.nullable().optional(),
         ssl: z.boolean().optional(),
+        mTlsEnabled: z.boolean().optional(),
         sso: z.boolean().optional(),
         blockAccess: z.boolean().optional(),
         emailWhitelistEnabled: z.boolean().optional(),

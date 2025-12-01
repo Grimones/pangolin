@@ -59,6 +59,7 @@ type JoinedRow = {
     enabled: boolean;
     domainId: string | null;
     headerAuthId: number | null;
+    mTlsEnabled: boolean;
 
     targetId: number | null;
     targetIp: string | null;
@@ -69,7 +70,7 @@ type JoinedRow = {
     hcEnabled: boolean | null;
 };
 
-// grouped by resource with targets[]) 
+// grouped by resource with targets[])
 export type ResourceWithTargets = {
     resourceId: number;
     name: string;
@@ -86,6 +87,7 @@ export type ResourceWithTargets = {
     domainId: string | null;
     niceId: string;
     headerAuthId: number | null;
+    mTlsEnabled: boolean;
     targets: Array<{
         targetId: number;
         ip: string;
@@ -106,6 +108,7 @@ function queryResources(accessibleResourceIds: number[], orgId: string) {
             sso: resources.sso,
             pincodeId: resourcePincode.pincodeId,
             whitelist: resources.emailWhitelistEnabled,
+            mTlsEnabled: resources.mTlsEnabled,
             http: resources.http,
             protocol: resources.protocol,
             proxyPort: resources.proxyPort,
@@ -269,6 +272,7 @@ export async function listResources(
                     sso: row.sso,
                     pincodeId: row.pincodeId,
                     whitelist: row.whitelist,
+                    mTlsEnabled: row.mTlsEnabled,
                     http: row.http,
                     protocol: row.protocol,
                     proxyPort: row.proxyPort,

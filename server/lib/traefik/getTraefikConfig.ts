@@ -18,6 +18,7 @@ import { sanitize, validatePathRewriteConfig } from "./utils";
 
 const redirectHttpsMiddlewareName = "redirect-to-https";
 const badgerMiddlewareName = "badger";
+const mTlsOptionName = 'mtls';
 
 export async function getTraefikConfig(
     exitNodeId: number,
@@ -59,6 +60,7 @@ export async function getTraefikConfig(
             headers: resources.headers,
             proxyProtocol: resources.proxyProtocol,
             proxyProtocolVersion: resources.proxyProtocolVersion,
+            mTlsEnabled: resources.mTlsEnabled,
             // Target fields
             targetId: targets.targetId,
             targetEnabled: targets.enabled,
@@ -180,7 +182,8 @@ export async function getTraefikConfig(
                 priority: priority,
                 // Store domain cert resolver fields
                 domainCertResolver: row.domainCertResolver,
-                preferWildcardCert: row.preferWildcardCert
+                preferWildcardCert: row.preferWildcardCert,
+                mTlsEnabled: row.mTlsEnabled
             });
         }
 
@@ -209,6 +212,16 @@ export async function getTraefikConfig(
     }
 
     const config_output: any = {
+        tls: {
+            options: {
+                [mTlsOptionName]: {
+                    clientAuth: {
+                        caFiles: ['/ca-certificates/ca-cert.pem'],
+                        clientAuthType: 'RequireAndVerifyClientCert',
+                    }
+                }
+            }
+        },
         http: {
             middlewares: {
                 [redirectHttpsMiddlewareName]: {
@@ -289,12 +302,12 @@ export async function getTraefikConfig(
                 certResolver: resolverName,
                 ...(preferWildcard
                     ? {
-                          domains: [
-                              {
-                                  main: wildCard
-                              }
-                          ]
-                      }
+                        domains: [
+                            {
+                                main: wildCard
+                            }
+                        ]
+                    }
                     : {})
             };
 
@@ -449,6 +462,13 @@ export async function getTraefikConfig(
                 ...(resource.ssl ? { tls } : {})
             };
 
+            if (resource.mTlsEnabled) {
+                config_output.http.routers![routerName].tls = {
+                    ...config_output.http.routers![routerName].tls,
+                    options: mTlsOptionName,
+                }
+            }
+
             if (resource.ssl) {
                 config_output.http.routers![routerName + "-redirect"] = {
                     entryPoints: [
@@ -535,14 +555,14 @@ export async function getTraefikConfig(
                     })(),
                     ...(resource.stickySession
                         ? {
-                              sticky: {
-                                  cookie: {
-                                      name: "p_sticky", // TODO: make this configurable via config.yml like other cookies
-                                      secure: resource.ssl,
-                                      httpOnly: true
-                                  }
-                              }
-                          }
+                            sticky: {
+                                cookie: {
+                                    name: "p_sticky", // TODO: make this configurable via config.yml like other cookies
+                                    secure: resource.ssl,
+                                    httpOnly: true
+                                }
+                            }
+                        }
                         : {})
                 }
             };
@@ -645,18 +665,18 @@ export async function getTraefikConfig(
                     })(),
                     ...(resource.proxyProtocol && protocol == "tcp"
                         ? {
-                              serversTransport: `${ppPrefix}${resource.proxyProtocolVersion || 1}@file` // TODO: does @file here cause issues?
-                          }
+                            serversTransport: `${ppPrefix}${resource.proxyProtocolVersion || 1}@file` // TODO: does @file here cause issues?
+                        }
                         : {}),
                     ...(resource.stickySession
                         ? {
-                              sticky: {
-                                  ipStrategy: {
-                                      depth: 0,
-                                      sourcePort: true
-                                  }
-                              }
-                          }
+                            sticky: {
+                                ipStrategy: {
+                                    depth: 0,
+                                    sourcePort: true
+                                }
+                            }
+                        }
                         : {})
                 }
             };

@@ -25,7 +25,7 @@ export const dnsRecords = sqliteTable("dnsRecords", {
 
     recordType: text("recordType").notNull(), // "NS" | "CNAME" | "A" | "TXT"
     baseDomain: text("baseDomain"),
-    value: text("value").notNull(), 
+    value: text("value").notNull(),
     verified: integer("verified", { mode: "boolean" }).notNull().default(false),
 });
 
@@ -143,8 +143,8 @@ export const resources = sqliteTable("resources", {
     }),
     headers: text("headers"), // comma-separated list of headers to add to the request
     proxyProtocol: integer("proxyProtocol", { mode: "boolean" }).notNull().default(false),
-    proxyProtocolVersion: integer("proxyProtocolVersion").default(1)
-
+    proxyProtocolVersion: integer("proxyProtocolVersion").default(1),
+    mTlsEnabled: integer("mTlsEnabled", { mode: 'boolean' }).notNull().default(false)
 });
 
 export const targets = sqliteTable("targets", {

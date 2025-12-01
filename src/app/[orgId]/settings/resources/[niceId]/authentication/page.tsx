@@ -135,7 +135,11 @@ export default function ResourceAuthenticationPage() {
 
     const [loadingSaveUsersRoles, setLoadingSaveUsersRoles] = useState(false);
     const [loadingSaveWhitelist, setLoadingSaveWhitelist] = useState(false);
+    const [loadingSaveResourceMtls, setLoadingSaveResourceMtls] =
+        useState(false);
 
+    const [loadingRemoveResourceMtls, setLoadingRemoveResourceMtls] =
+        useState(false);
     const [loadingRemoveResourcePassword, setLoadingRemoveResourcePassword] =
         useState(false);
     const [loadingRemoveResourcePincode, setLoadingRemoveResourcePincode] =
@@ -372,6 +376,66 @@ export default function ResourceAuthenticationPage() {
         } finally {
             setLoadingSaveUsersRoles(false);
         }
+    }
+
+    function removeResourceMtls() {
+        setLoadingRemoveResourceMtls(true);
+
+        api.post(`/resource/${resource.resourceId}`, {
+            mTlsEnabled: false
+        })
+            .then(() => {
+                toast({
+                    title: t("resourceMtlsRemove"),
+                    description: t("resourceMtlsRemoveDescription")
+                });
+
+                updateAuthInfo({
+                    mtls: false
+                });
+                router.refresh();
+            })
+            .catch((e) => {
+                toast({
+                    variant: "destructive",
+                    title: t("resourceErrorMtlsRemove"),
+                    description: formatAxiosError(
+                        e,
+                        t("resourceErrorMtlsRemoveDescription")
+                    )
+                });
+            })
+            .finally(() => setLoadingRemoveResourceMtls(false));
+    }
+
+    function addResourceMtls() {
+        setLoadingSaveResourceMtls(true);
+
+        api.post(`/resource/${resource.resourceId}`, {
+            mTlsEnabled: true
+        })
+            .then(() => {
+                toast({
+                    title: t("resourceMtlsSave"),
+                    description: t("resourceMtlsSaveDescription")
+                });
+
+                updateAuthInfo({
+                    mtls: true
+                });
+                router.refresh();
+            })
+            .catch((e) => {
+                toast({
+                    variant: "destructive",
+                    title: t("resourceErrorMtlsSave"),
+                    description: formatAxiosError(
+                        e,
+                        t("resourceErrorMtlsSaveDescription")
+                    )
+                });
+            })
+            .finally(() => setLoadingSaveResourceMtls(false));
     }
 
     function removeResourcePassword() {
@@ -769,6 +833,36 @@ export default function ResourceAuthenticationPage() {
                     </SettingsSectionHeader>
                     <SettingsSectionBody>
                         <SettingsSectionForm>
+                            {/* mTLS */}
+                            <div className="flex items-center justify-between border rounded-md p-2">
+                                <div
+                                    className={`flex items-center ${!authInfo.mtls ? "text-muted-foreground" : "text-green-500"} space-x-2 text-sm`}
+                                >
+                                    <Binary size="14" />
+                                    <span>
+                                        {t("resourceMtlsProtection", {
+                                            status: authInfo.mtls
+                                                ? t("enabled")
+                                                : t("disabled")
+                                        })}
+                                    </span>
+                                </div>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={
+                                        authInfo.mtls
+                                            ? removeResourceMtls
+                                            : addResourceMtls
+                                    }
+                                    loading={loadingRemoveResourceMtls || loadingSaveResourceMtls}
+                                >
+                                    {authInfo.mtls
+                                        ? t("mTlsRemove")
+                                        : t("mTlsAdd")}
+                                </Button>
+                            </div>
+
                             {/* Password Protection */}
                             <div className="flex items-center justify-between border rounded-md p-2 mb-4">
                                 <div

@@ -26,6 +26,7 @@ export type GetResourceAuthInfoResponse = {
     resourceGuid: string;
     resourceName: string;
     niceId: string;
+    mtls: boolean;
     password: boolean;
     pincode: boolean;
     headerAuth: boolean;
@@ -121,6 +122,7 @@ export async function getResourceAuthInfo(
                 resourceGuid: resource.resourceGuid,
                 resourceId: resource.resourceId,
                 resourceName: resource.name,
+                mtls: resource.mTlsEnabled,
                 password: password !== null,
                 pincode: pincode !== null,
                 headerAuth: headerAuth !== null,

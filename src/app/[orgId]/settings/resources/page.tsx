@@ -87,6 +87,7 @@ export default async function ResourcesPage(props: ResourcesPageProps) {
           resource.pincodeId !== null ||
           resource.passwordId !== null ||
           resource.whitelist ||
+          resource.mTlsEnabled ||
           resource.headerAuthId
           ? "protected"
           : "not_protected",
